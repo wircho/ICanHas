@@ -15,6 +15,6 @@ ICanHas.Location { (authorized, status) -> Void in
 }
 ```
 
-Other available functions are `ICanHas.Contacts`, `ICanHas.Calendar`, `ICanHas.Capture`, `ICanHas.Push`, and `ICanHas.Photos`. Some of them take some optional parameters (you can just omit them) before the closure.
+Other available functions are `ICanHas.Contacts`, `ICanHas.Calendar`, `ICanHas.Capture`, `ICanHas.Push`, and `ICanHas.Photos`. Some of them take some optional parameters (you may omit them) before the closure.
 
 
