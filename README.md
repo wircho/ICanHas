@@ -19,6 +19,12 @@ ICanHas.Location { (authorized, status) -> Void in
     println(authorized ? "You're authorized to use location!" : "You're not authorized to use location!")
 }
 ```
+**Remark:** You may specify whether you would like the app to be able to access location while in the background, and/or the location manager you will be using, as follows:
+```swift
+let myManager = CLLocationManager()
+ICanHas.Location(background:false,manager:myManager) { ... }
+```
+**Remark:** Also make sure to add the `NSLocationWhenInUseUsageDescription` or `NSLocationAlwaysUsageDescription` key to your `Info.plist` file. Not doing so will produce an assertion failure. [More info here](https://developer.apple.com/library/prerelease/ios/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html#//apple_ref/doc/uid/TP40009251-SW18).
 
 ### Push Notifications:
 ```swift
@@ -27,6 +33,8 @@ ICanHas.Push { (authorized) -> Void in
 }
 ```
 **Remark:** This function has one optional parameter `types:UIUserNotificationType` which specifies the user notification types for which you would like the app to be registered. The default value includes all types `.Alert|.Badge|.Sound`. **To specify this parameters, write `ICanHas.Push(types:...) { ... }`.**
+**Remark:** For this authorization to work, you will need to run your app on a device (the simulator cannot register for push notifications) and make sure you have all the necessary provisioning and certificates. [More info here](https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/ConfiguringPushNotifications/ConfiguringPushNotifications.html).
+
 
 ### Calendar:
 ```swift
@@ -48,6 +56,23 @@ ICanHas.Capture { (authorized,status) -> Void in
 ```
 **Remark:** To request access to the microphone use the optional `type` parameter: `ICanHas.Capture(type:AVMediaTypeAudio) { ... }`. Other available types are `AVMediaTypeClosedCaption, AVMediaTypeMetadata, AVMediaTypeMuxed, AVMediaTypeSubtitle, AVMediaTypeText, AVMediaTypeTimecode`. Default is `AVMediaTypeVideo`.
 
-Other available functions are `ICanHas.Contacts`, and `ICanHas.Photos`. Some of them take some optional parameters (you may omit them) before the closure.
+### Photos (Albums):
+```swift
+ICanHas.Photos { (authorized,status) -> Void in
+    println(authorized ? "You're authorized to access photos!" : "You're not authorized to access photos!")
+}
+```
+
+### Contacts:
+```swift
+ICanHas.Contacts { (authorized,status,error) -> Void in
+    println(authorized ? "You're authorized to access contacts!" : "You're not authorized to access contacts!")
+}
+```
+**Remark:** You may optionally specify the address book reference you would like to use:
+```swift
+let myAddressBookRef = ABAddressBookCreateWithOptions(nil, nil)?.takeRetainedValue()
+ICanHas.Contacts(addressBook:myAddressBookRef) { ... }
+```
 
 
