@@ -33,6 +33,7 @@ ICanHas.Push { (authorized) -> Void in
 }
 ```
 **Remark:** This function has one optional parameter `types:UIUserNotificationType` which specifies the user notification types for which you would like the app to be registered. The default value includes all types `.Alert|.Badge|.Sound`. **To specify this parameters, write `ICanHas.Push(types:...) { ... }`.**
+
 **Remark:** For this authorization to work, you will need to run your app on a device (the simulator cannot register for push notifications) and make sure you have all the necessary provisioning and certificates. [More info here](https://developer.apple.com/library/ios/documentation/IDEs/Conceptual/AppDistributionGuide/ConfiguringPushNotifications/ConfiguringPushNotifications.html).
 
 
