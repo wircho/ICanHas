@@ -1,7 +1,7 @@
 # ICanHas
 Swift library that simplifies iOS user permission requests (location, push notifications, camera, contacts, calendar, photos, etc).
 
-**The library is still in early stage so people don't hesitate to give suggestions or report issues.**
+**The library is still in early stage so please don't hesitate to give suggestions or report issues.**
 
 ## Installation
 
