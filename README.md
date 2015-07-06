@@ -11,14 +11,14 @@ Just add ICanHas.swift to your Xcode project.
 
 Use the provided function every time you need to make sure that the app has permissions to access the corresponding service. The first time a function is called, it may prompt the user to allow that service on a native alert view. See the examples below
 
-**Location:**
+### Location:
 ```swift
 ICanHas.Location { (authorized, status) -> Void in
     println(authorized ? "You're authorized to use location!" : "You're not authorized to use location!")
 }
 ```
 
-**Push Notifications:**
+### Push Notifications:
 ```swift
 ICanHas.Push { (authorized) -> Void in
     println(authorized ? "You're authorized to use push!" : "You're not authorized to use push!")
