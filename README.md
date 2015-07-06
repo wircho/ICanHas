@@ -76,4 +76,7 @@ let myAddressBookRef = ABAddressBookCreateWithOptions(nil, nil)?.takeRetainedVal
 ICanHas.Contacts(addressBook:myAddressBookRef) { ... }
 ```
 
+## License
+
+ICanHas is available under the MIT license. See the LICENSE file for more info.
 
