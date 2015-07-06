@@ -24,7 +24,7 @@ ICanHas.Push { (authorized) -> Void in
     println(authorized ? "You're authorized to send push notes!" : "You're not authorized to send push notes!")
 }
 ```
-**Remark:** This function has one optional parameter `types:UIUserNotificationType` which specifies the user notification types for which you would like the app to be registered. The default value includes all types `.Alert|.Badge|.Sound`. **To specify this parameters, write `ICanHas.Push(types:...) {...}`.**
+**Remark:** This function has one optional parameter `types:UIUserNotificationType` which specifies the user notification types for which you would like the app to be registered. The default value includes all types `.Alert|.Badge|.Sound`. **To specify this parameters, write `ICanHas.Push(types:...) { ... }`.**
 
 ### Calendar:
 ```swift
