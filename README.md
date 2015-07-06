@@ -1,7 +1,9 @@
 # ICanHas
 Swift library that simplifies iOS user permission requests (location, push notifications, camera, contacts, calendar, photos, etc).
 
-**The library is still in early stage so please don't hesitate to give suggestions or report issues.**
+This library is part of our project to open source some of the code base for the [Relevant iOS App](https://itunes.apple.com/app/relevant-missing-home-screen/id970172407?ls=1&mt=8). Visit [relevant.ai](http://relevant.ai) for more information.
+
+**The library is still in early stage so please don't hesitate to give us suggestions or report issues.**
 
 ## Installation
 
@@ -38,6 +40,14 @@ let myStore = EKEventStore()
 ICanHas.Calendar(store:myStore,entityType:EKEntityTypeEvent) { ... }
 ```
 
-Other available functions are `ICanHas.Contacts`, `ICanHas.Capture`, and `ICanHas.Photos`. Some of them take some optional parameters (you may omit them) before the closure.
+### Capture (Camera, Microphone, etc):
+```swift
+ICanHas.Capture { (authorized,status) -> Void in
+    println(authorized ? "You're authorized to access the camera!" : "You're not authorized to access the camera!")
+}
+```
+**Remark:** To request access to the microphone use the optional `type` parameter: `ICanHas.Capture(type:AVMediaTypeAudio) { ... }`. Other available types are `AVMediaTypeClosedCaption, AVMediaTypeMetadata, AVMediaTypeMuxed, AVMediaTypeSubtitle, AVMediaTypeText, AVMediaTypeTimecode`. Default is `AVMediaTypeVideo`.
+
+Other available functions are `ICanHas.Contacts`, and `ICanHas.Photos`. Some of them take some optional parameters (you may omit them) before the closure.
 
 
