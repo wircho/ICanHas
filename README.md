@@ -21,11 +21,23 @@ ICanHas.Location { (authorized, status) -> Void in
 ### Push Notifications:
 ```swift
 ICanHas.Push { (authorized) -> Void in
-    println(authorized ? "You're authorized to use push!" : "You're not authorized to use push!")
+    println(authorized ? "You're authorized to send push notes!" : "You're not authorized to send push notes!")
 }
 ```
 **Remark:** This function has one optional parameter `types:UIUserNotificationType` which specifies the user notification types for which you would like the app to be registered. The default value includes all types `.Alert|.Badge|.Sound`. **To specify this parameters, write `ICanHas.Push(types:...) {...}`.**
 
-Other available functions are `ICanHas.Contacts`, `ICanHas.Calendar`, `ICanHas.Capture`, and `ICanHas.Photos`. Some of them take some optional parameters (you may omit them) before the closure.
+### Calendar:
+```swift
+ICanHas.Calendar { (authorized,error) -> Void in
+    println(authorized ? "You're authorized to access the calendar!" : "You're not authorized to access the calendar!")
+}
+```
+**Remark:** You may optionally specify an EKEventStore and/or an entity type. For example:
+```swift
+let myStore = EKEventStore()
+ICanHas.Calendar(store:myStore,entityType:EKEntityTypeEvent) { ... }
+```
+
+Other available functions are `ICanHas.Contacts`, `ICanHas.Capture`, and `ICanHas.Photos`. Some of them take some optional parameters (you may omit them) before the closure.
 
 
