@@ -1,7 +1,7 @@
 # ICanHas
 Swift library that simplifies iOS user permission requests (location, push notifications, camera, contacts, calendar, photos, etc).
 
-This library is part of our project to open source some of the code base for the [Relevant iOS App](https://itunes.apple.com/app/relevant-missing-home-screen/id970172407?ls=1&mt=8). Visit [relevant.ai](http://relevant.ai) for more information.
+This library is part of our project to open source some of the code base for the **[Relevant iOS App](https://itunes.apple.com/app/relevant-missing-home-screen/id970172407?ls=1&mt=8)**. Visit **[relevant.ai](http://relevant.ai)** for more information.
 
 **The library is still in early stage so please don't hesitate to give us suggestions or report issues.**
 
