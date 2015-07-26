@@ -34,6 +34,14 @@ public class ICanHas {
     static var hasContactsClosures:[(authorized:Bool,status:ABAuthorizationStatus,error:CFError!)->Void] = []
     static var hasCalendarClosures:[Int:[(authorized:Bool,error:NSError!)->Void]] = [EKEntityTypeEvent:[],EKEntityTypeReminder:[]]
     
+    public class func CalendarAuthorizationStatus(entityType type:Int = EKEntityTypeEvent)->EKAuthorizationStatus {
+        return EKEventStore.authorizationStatusForEntityType(type)
+    }
+    
+    public class func CalendarAuthorization(entityType type:Int = EKEntityTypeEvent)->Bool {
+        return EKEventStore.authorizationStatusForEntityType(type) == .Authorized
+    }
+    
     public class func Calendar(store:EKEventStore = EKEventStore(), entityType type:Int = EKEntityTypeEvent, closure:(authorized:Bool,error:NSError!)->Void) {
         
         onMain {
@@ -63,6 +71,14 @@ public class ICanHas {
             }
         }
         
+    }
+    
+    public class func ContactsAuthorizationStatus()->ABAuthorizationStatus {
+        return ABAddressBookGetAuthorizationStatus()
+    }
+    
+    public class func ContactsAuthorization()->Bool {
+        return ABAddressBookGetAuthorizationStatus() == .Authorized
     }
     
     public class func Contacts(addressBook:ABAddressBookRef? = ABAddressBookCreateWithOptions(nil, nil)?.takeRetainedValue(), closure:(authorized:Bool,status:ABAuthorizationStatus,error:CFError!)->Void) {
@@ -108,6 +124,14 @@ public class ICanHas {
             
         }
         
+    }
+    
+    public class func PhotosAuthorizationStatus()->PHAuthorizationStatus {
+        return PHPhotoLibrary.authorizationStatus()
+    }
+    
+    public class func PhotosAuthorization()->Bool {
+        return PHPhotoLibrary.authorizationStatus() == .Authorized
     }
     
     public class func Photos(closure:(authorized:Bool,status:PHAuthorizationStatus)->Void) {
@@ -158,6 +182,14 @@ public class ICanHas {
         
     }
     
+    public class func CaptureAuthorizationStatus(type:String = AVMediaTypeVideo)->AVAuthorizationStatus {
+        return AVCaptureDevice.authorizationStatusForMediaType(type)
+    }
+    
+    public class func CaptureAuthorization(type:String = AVMediaTypeVideo)->Bool {
+        return AVCaptureDevice.authorizationStatusForMediaType(type) == .Authorized
+    }
+    
     public class func Capture(type:String = AVMediaTypeVideo,closure:(authorized:Bool,status:AVAuthorizationStatus)->Void) {
         onMain {
             
@@ -202,12 +234,50 @@ public class ICanHas {
         }
     }
     
+    public class func PushAuthorization()->Bool {
+        return UIApplication.sharedApplication().isRegisteredForRemoteNotifications()
+    }
+    
+//    private static var pushExchangeDone = false
     
     public class func Push(types:UIUserNotificationType = UIUserNotificationType.Alert |
         UIUserNotificationType.Badge |
         UIUserNotificationType.Sound,closure:(authorized:Bool)->Void) {
             
             onMain {
+                
+//                if !self.pushExchangeDone {
+//                    self.pushExchangeDone = true
+//                    
+//                    let appDelegate:NSObject = UIApplication.sharedApplication().delegate! as! NSObject
+//                    
+//                    let appDelegateClass:AnyClass = appDelegate.dynamicType
+//                    
+//                    [
+//                        ("application:didRegisterForRemoteNotificationsWithDeviceToken:","_ICanHas_application:didRegisterForRemoteNotificationsWithDeviceToken:"),
+//                        ("application:didFailToRegisterForRemoteNotificationsWithError:","_ICanHas_application:didFailToRegisterForRemoteNotificationsWithError:")
+//                        ]
+//                        .map {
+//                            
+//                            (pair:(String,String))->Void in
+//                            
+//                            if String.fromCString(method_getTypeEncoding(class_getInstanceMethod(appDelegateClass, Selector(stringLiteral: pair.0)))) == nil {
+//                                
+//                                let method = class_getInstanceMethod(NSObject.self, Selector(stringLiteral:"_ICanHas_empty_" + pair.0))
+//                                
+//                                class_addMethod(appDelegateClass, Selector(stringLiteral:pair.0), method_getImplementation(method), method_getTypeEncoding(method))
+//                                
+//                            }
+//                            
+//                            
+//                            method_exchangeImplementations(
+//                                class_getInstanceMethod(appDelegateClass,Selector(stringLiteral: pair.0)),
+//                                class_getInstanceMethod(appDelegateClass,Selector(stringLiteral: pair.1))
+//                            )
+//                    }
+//                    
+//                    appDelegate._ich_listener = _ICanHasListener()
+//                }
                 
                 ICanHas.hasPushClosures.append(closure)
                 
@@ -288,7 +358,15 @@ public class ICanHas {
             }
     }
     
-    static var locationExchangeDone:[String:Bool] = [:]
+    private static var locationExchangeDone:[String:Bool] = [:]
+    
+    public class func LocationAuthorizationStatus()->CLAuthorizationStatus {
+        return CLLocationManager.authorizationStatus()
+    }
+    
+    public class func LocationAuthorization(background:Bool = false)->Bool {
+        return CLLocationManager.authorizationStatus() == .AuthorizedAlways || (!background && CLLocationManager.authorizationStatus() == .AuthorizedWhenInUse)
+    }
     
     public class func Location(background:Bool = false, manager mngr:CLLocationManager? = nil, closure:(authorized:Bool,status:CLAuthorizationStatus) -> Void) {
         
@@ -436,45 +514,12 @@ public class ICanHas {
 }
 
 private var _ICanHasListenerHandler: UInt8 = 0
-private var _ICanHasSwitched = false
 
 extension NSObject {
     
     private var _ich_listener:_ICanHasListener! {
         set {
-            if !_ICanHasSwitched {
-                
-                //TODO: NSObject no longer implements these. Switch the right ones.
-                //Commit and push Curly and ICanHas!!!!
-                
-                let appDelegateClass:AnyClass = (UIApplication.sharedApplication().delegate! as AnyObject).dynamicType
-                
-                [
-                    //("locationManager:didChangeAuthorizationStatus:","_ICanHas_locationManager:didChangeAuthorizationStatus:"),
-                    ("application:didRegisterForRemoteNotificationsWithDeviceToken:","_ICanHas_application:didRegisterForRemoteNotificationsWithDeviceToken:"),
-                    ("application:didFailToRegisterForRemoteNotificationsWithError:","_ICanHas_application:didFailToRegisterForRemoteNotificationsWithError:")
-                    ]
-                    .map {
-                        
-                        (pair:(String,String))->Void in
-                        
-                        if String.fromCString(method_getTypeEncoding(class_getInstanceMethod(appDelegateClass, Selector(stringLiteral: pair.0)))) == nil {
-                            
-                            let method = class_getInstanceMethod(NSObject.self, Selector(stringLiteral:"_ICanHas_empty_" + pair.0))
-                            
-                            class_addMethod(appDelegateClass, Selector(stringLiteral:pair.0), method_getImplementation(method), method_getTypeEncoding(method))
-                            
-                        }
-                        
-                        
-                        method_exchangeImplementations(
-                            class_getInstanceMethod(appDelegateClass,Selector(stringLiteral: pair.0)),
-                            class_getInstanceMethod(appDelegateClass,Selector(stringLiteral: pair.1))
-                        )
-                }
-                
-                _ICanHasSwitched = true
-            }
+            
             objc_setAssociatedObject(self, &_ICanHasListenerHandler, newValue, objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC))
         }
         get {
@@ -486,9 +531,9 @@ extension NSObject {
     //Added implementations
     public func _ICanHas_empty_locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) { }
     
-    public func _ICanHas_empty_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) { }
-    
-    public func _ICanHas_empty_application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) { }
+//    public func _ICanHas_empty_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) { }
+//    
+//    public func _ICanHas_empty_application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) { }
     
     //Added implementations
     public func _ICanHas_locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
@@ -497,17 +542,17 @@ extension NSObject {
         self._ICanHas_locationManager(manager, didChangeAuthorizationStatus: status)
     }
     
-    public func _ICanHas_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-        self._ich_listener?.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-        
-        self._ICanHas_application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
-    }
-    
-    public func _ICanHas_application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
-        self._ich_listener?.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
-        
-        self._ICanHas_application(application, didFailToRegisterForRemoteNotificationsWithError: error)
-    }
+//    public func _ICanHas_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+//        self._ich_listener?.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+//        
+//        self._ICanHas_application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
+//    }
+//    
+//    public func _ICanHas_application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+//        self._ich_listener?.application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+//        
+//        self._ICanHas_application(application, didFailToRegisterForRemoteNotificationsWithError: error)
+//    }
     
 }
 
@@ -520,10 +565,10 @@ public class _ICanHasListener:NSObject,CLLocationManagerDelegate,UIApplicationDe
         self.changedLocationPermissions?(status)
     }
     
-    public func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-        self.registeredForPush?(deviceToken)
-    }
-    public func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
-        self.failedToRegisterForPush?(error)
-    }
+//    public func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+//        self.registeredForPush?(deviceToken)
+//    }
+//    public func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+//        self.failedToRegisterForPush?(error)
+//    }
 }
