@@ -288,9 +288,12 @@ public class ICanHas {
             }
     }
     
+    static var locationExchangeDone:[String:Bool] = [:]
+    
     public class func Location(background:Bool = false, manager mngr:CLLocationManager? = nil, closure:(authorized:Bool,status:CLAuthorizationStatus) -> Void) {
         
         onMain {
+            
             ICanHas.hasLocationClosures.append(closure)
             
             if !ICanHas.isHasingLocation {
@@ -326,6 +329,34 @@ public class ICanHas {
                     }
                 case .NotDetermined:
                     var manager:CLLocationManager! = mngr ?? CLLocationManager()
+                    
+                    let managerClass:AnyClass = (manager as AnyObject).dynamicType
+                    
+                    let managerClassName = "\(managerClass)"
+                    
+                    if !(self.locationExchangeDone[managerClassName] ?? false) {
+                        self.locationExchangeDone[managerClassName] = true
+                        
+                        let pair = ("locationManager:didChangeAuthorizationStatus:","_ICanHas_locationManager:didChangeAuthorizationStatus:")
+                        
+                        if String.fromCString(method_getTypeEncoding(class_getInstanceMethod(managerClass, Selector(stringLiteral: pair.0)))) == nil {
+                            
+                            let method = class_getInstanceMethod(NSObject.self, Selector(stringLiteral:"_ICanHas_empty_" + pair.0))
+                            
+                            class_addMethod(managerClass, Selector(stringLiteral:pair.0), method_getImplementation(method), method_getTypeEncoding(method))
+                            
+                        }
+                        
+                        
+                        method_exchangeImplementations(
+                            class_getInstanceMethod(managerClass,Selector(stringLiteral: pair.0)),
+                            class_getInstanceMethod(managerClass,Selector(stringLiteral: pair.1))
+                        )
+                        
+                    }
+                    
+                    
+                    
                     manager.requestWhenInUseAuthorization()
                     
                     var listener:_ICanHasListener! = _ICanHasListener()
@@ -413,15 +444,32 @@ extension NSObject {
         set {
             if !_ICanHasSwitched {
                 
+                //TODO: NSObject no longer implements these. Switch the right ones.
+                //Commit and push Curly and ICanHas!!!!
+                
+                let appDelegateClass:AnyClass = (UIApplication.sharedApplication().delegate! as AnyObject).dynamicType
+                
                 [
-                    ("locationManager:didChangeAuthorizationStatus:","_ICanHas_locationManager:didChangeAuthorizationStatus:"),
+                    //("locationManager:didChangeAuthorizationStatus:","_ICanHas_locationManager:didChangeAuthorizationStatus:"),
                     ("application:didRegisterForRemoteNotificationsWithDeviceToken:","_ICanHas_application:didRegisterForRemoteNotificationsWithDeviceToken:"),
                     ("application:didFailToRegisterForRemoteNotificationsWithError:","_ICanHas_application:didFailToRegisterForRemoteNotificationsWithError:")
                     ]
                     .map {
+                        
+                        (pair:(String,String))->Void in
+                        
+                        if String.fromCString(method_getTypeEncoding(class_getInstanceMethod(appDelegateClass, Selector(stringLiteral: pair.0)))) == nil {
+                            
+                            let method = class_getInstanceMethod(NSObject.self, Selector(stringLiteral:"_ICanHas_empty_" + pair.0))
+                            
+                            class_addMethod(appDelegateClass, Selector(stringLiteral:pair.0), method_getImplementation(method), method_getTypeEncoding(method))
+                            
+                        }
+                        
+                        
                         method_exchangeImplementations(
-                            class_getInstanceMethod(NSObject.self,Selector(stringLiteral: $0.0)),
-                            class_getInstanceMethod(NSObject.self,Selector(stringLiteral: $0.1))
+                            class_getInstanceMethod(appDelegateClass,Selector(stringLiteral: pair.0)),
+                            class_getInstanceMethod(appDelegateClass,Selector(stringLiteral: pair.1))
                         )
                 }
                 
@@ -434,13 +482,13 @@ extension NSObject {
         }
     }
     
-    //Empty implementations:
-    public func locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-    }
-    public func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-    }
-    public func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
-    }
+//    //Empty implementations:
+    //Added implementations
+    public func _ICanHas_empty_locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) { }
+    
+    public func _ICanHas_empty_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) { }
+    
+    public func _ICanHas_empty_application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) { }
     
     //Added implementations
     public func _ICanHas_locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
@@ -468,14 +516,14 @@ public class _ICanHasListener:NSObject,CLLocationManagerDelegate,UIApplicationDe
     var registeredForPush:((NSData)->Void)!
     var failedToRegisterForPush:((NSError)->Void)!
     
-    public override func locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+    public func locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
         self.changedLocationPermissions?(status)
     }
     
-    public override func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+    public func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
         self.registeredForPush?(deviceToken)
     }
-    public override func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+    public func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
         self.failedToRegisterForPush?(error)
     }
 }
