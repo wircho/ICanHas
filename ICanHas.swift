@@ -25,24 +25,24 @@ public class ICanHas {
     static var isHasingCapture:[String:Bool] = [AVMediaTypeAudio:false,AVMediaTypeClosedCaption:false,AVMediaTypeMetadata:false,AVMediaTypeMuxed:false,AVMediaTypeSubtitle:false,AVMediaTypeText:false,AVMediaTypeTimecode:false,AVMediaTypeVideo:false]
     static var isHasingPhotos = false
     static var isHasingContacts = false
-    static var isHasingCalendar:[Int:Bool] = [EKEntityTypeEvent:false,EKEntityTypeReminder:false]
+    static var isHasingCalendar:[EKEntityType:Bool] = [EKEntityType.Event:false,EKEntityType.Reminder:false]
     
     static var hasPushClosures:[(authorized:Bool)->Void] = []
     static var hasLocationClosures:[(authorized:Bool,status:CLAuthorizationStatus)->Void] = []
     static var hasCaptureClosures:[String:[(authorized:Bool,status:AVAuthorizationStatus)->Void]] = [AVMediaTypeAudio:[],AVMediaTypeClosedCaption:[],AVMediaTypeMetadata:[],AVMediaTypeMuxed:[],AVMediaTypeSubtitle:[],AVMediaTypeText:[],AVMediaTypeTimecode:[],AVMediaTypeVideo:[]]
     static var hasPhotosClosures:[(authorized:Bool,status:PHAuthorizationStatus)->Void] = []
     static var hasContactsClosures:[(authorized:Bool,status:ABAuthorizationStatus,error:CFError!)->Void] = []
-    static var hasCalendarClosures:[Int:[(authorized:Bool,error:NSError!)->Void]] = [EKEntityTypeEvent:[],EKEntityTypeReminder:[]]
+    static var hasCalendarClosures:[EKEntityType:[(authorized:Bool,error:NSError!)->Void]] = [EKEntityType.Event:[],EKEntityType.Reminder:[]]
     
-    public class func CalendarAuthorizationStatus(entityType type:Int = EKEntityTypeEvent)->EKAuthorizationStatus {
+    public class func CalendarAuthorizationStatus(entityType type:EKEntityType = EKEntityType.Event)->EKAuthorizationStatus {
         return EKEventStore.authorizationStatusForEntityType(type)
     }
     
-    public class func CalendarAuthorization(entityType type:Int = EKEntityTypeEvent)->Bool {
+    public class func CalendarAuthorization(entityType type:EKEntityType = EKEntityType.Event)->Bool {
         return EKEventStore.authorizationStatusForEntityType(type) == .Authorized
     }
     
-    public class func Calendar(store:EKEventStore = EKEventStore(), entityType type:Int = EKEntityTypeEvent, closure:(authorized:Bool,error:NSError!)->Void) {
+    public class func Calendar(store:EKEventStore = EKEventStore(), entityType type:EKEntityType = EKEntityType.Event, closure:(authorized:Bool,error:NSError!)->Void) {
         
         onMain {
             ICanHas.hasCalendarClosures[type]!.append(closure)
@@ -56,12 +56,12 @@ public class ICanHas {
                     let array = ICanHas.hasCalendarClosures[type]!
                     ICanHas.hasCalendarClosures[type] = []
                     
-                    array.map{$0(authorized:authorized,error:error)}
+                    let _ = array.map{$0(authorized:authorized,error:error)}
                     
                     ICanHas.isHasingCalendar[type] = false
                 }
                 
-                store.requestAccessToEntityType(type, completion: { (authorized:Bool, error:NSError!) -> Void in
+                store.requestAccessToEntityType(type, completion: { (authorized:Bool, error:NSError?) -> Void in
                     
                    ICanHas.onMain {
                         done(authorized,error)
@@ -95,7 +95,7 @@ public class ICanHas {
                     let array = ICanHas.hasContactsClosures
                     ICanHas.hasContactsClosures = []
                     
-                    array.map{$0(authorized:authorized,status:status,error:error)}
+                    let _ = array.map{$0(authorized:authorized,status:status,error:error)}
                     
                     ICanHas.isHasingContacts = false
                 }
@@ -149,7 +149,7 @@ public class ICanHas {
                     let array = ICanHas.hasPhotosClosures
                     ICanHas.hasPhotosClosures = []
                     
-                    array.map{$0(authorized:authorized,status:status)}
+                    let _ = array.map{$0(authorized:authorized,status:status)}
                     
                     ICanHas.isHasingPhotos = false
                 }
@@ -204,7 +204,7 @@ public class ICanHas {
                     let array = ICanHas.hasCaptureClosures[type]!
                     ICanHas.hasCaptureClosures[type] = []
                     
-                    array.map{$0(authorized:authorized,status:status)}
+                    let _ = array.map{$0(authorized:authorized,status:status)}
                     
                     ICanHas.isHasingCapture[type] = false
                 }
@@ -240,9 +240,7 @@ public class ICanHas {
     
 //    private static var pushExchangeDone = false
     
-    public class func Push(types:UIUserNotificationType = UIUserNotificationType.Alert |
-        UIUserNotificationType.Badge |
-        UIUserNotificationType.Sound,closure:(authorized:Bool)->Void) {
+    public class func Push(types:UIUserNotificationType = UIUserNotificationType.Alert.union(UIUserNotificationType.Badge).union(UIUserNotificationType.Sound),closure:(authorized:Bool)->Void) {
             
             onMain {
                 
@@ -290,7 +288,7 @@ public class ICanHas {
                         let array = ICanHas.hasPushClosures
                         ICanHas.hasPushClosures = []
                         
-                        array.map{$0(authorized:authorized)}
+                        let _ = array.map{$0(authorized:authorized)}
                         
                         ICanHas.isHasingPush = false
                     }
@@ -304,8 +302,8 @@ public class ICanHas {
                         
                         application.registerUserNotificationSettings(UIUserNotificationSettings(forTypes: types, categories: nil))
                         
-                        var bgNoteObject:NSObjectProtocol! = nil
-                        var fgNoteObject:NSObjectProtocol! = nil
+                        var bgNoteObject:NSObjectProtocol? = nil
+                        var fgNoteObject:NSObjectProtocol? = nil
                         
                         var hasTimedOut = false
                         
@@ -313,7 +311,7 @@ public class ICanHas {
                         
                         var shouldWaitForFG = false
                         
-                        bgNoteObject = NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationWillResignActiveNotification, object: nil, queue: NSOperationQueue.mainQueue()) { (note:NSNotification!) -> Void in
+                        bgNoteObject = bgNoteObject ?? NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationWillResignActiveNotification, object: nil, queue: NSOperationQueue.mainQueue()) { (note:NSNotification) -> Void in
                             
                             hasGoneToBG = true
                             
@@ -324,7 +322,7 @@ public class ICanHas {
                             bgNoteObject = nil
                         }
                         
-                        fgNoteObject = NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationDidBecomeActiveNotification, object: nil, queue: NSOperationQueue.mainQueue()) { (note:NSNotification!) -> Void in
+                        fgNoteObject = fgNoteObject ?? NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationDidBecomeActiveNotification, object: nil, queue: NSOperationQueue.mainQueue()) { (note:NSNotification) -> Void in
                             
                             if shouldWaitForFG {
                                 done(application.isRegisteredForRemoteNotifications())
@@ -383,7 +381,7 @@ public class ICanHas {
                     let array = ICanHas.hasLocationClosures
                     ICanHas.hasLocationClosures = []
                     
-                    array.map{$0(authorized:authorized,status:status)}
+                    let _ = array.map{$0(authorized:authorized,status:status)}
                     
                     ICanHas.isHasingLocation = false
                 }
@@ -520,7 +518,7 @@ extension NSObject {
     private var _ich_listener:_ICanHasListener! {
         set {
             
-            objc_setAssociatedObject(self, &_ICanHasListenerHandler, newValue, objc_AssociationPolicy(OBJC_ASSOCIATION_RETAIN_NONATOMIC))
+            objc_setAssociatedObject(self, &_ICanHasListenerHandler, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
         }
         get {
             return objc_getAssociatedObject(self, &_ICanHasListenerHandler) as? _ICanHasListener
@@ -561,7 +559,7 @@ public class _ICanHasListener:NSObject,CLLocationManagerDelegate,UIApplicationDe
     var registeredForPush:((NSData)->Void)!
     var failedToRegisterForPush:((NSError)->Void)!
     
-    public func locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+    public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
         self.changedLocationPermissions?(status)
     }
     
