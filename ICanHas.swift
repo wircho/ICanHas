@@ -390,97 +390,172 @@ public class ICanHas {
                 let callback = {(authorized:Bool) -> Void in
                     done(authorized, currentStatus)
                 }
+                
+                
                 switch currentStatus {
                 case .AuthorizedAlways:
+                    print("status is always")
                     callback(true)
                 case .Denied:
+                    print("status is denied")
                     callback(false)
                 case .Restricted:
+                    print("status is restricted")
                     callback(false)
                 case .AuthorizedWhenInUse:
+                    print("status is when in use")
                     if background {
                         fallthrough
                     }else {
                         callback(true)
                     }
                 case .NotDetermined:
+                    print("status is not determined")
                     var manager:CLLocationManager! = mngr ?? CLLocationManager()
                     
-                    let managerClass:AnyClass = (manager as AnyObject).dynamicType
+//                    let managerDelegate:CLLocationManagerDelegate
+//                    var retainedManagerDelegate:CLLocationManagerDelegate!
                     
-                    let managerClassName = "\(managerClass)"
+//                    if manager.delegate == nil {
+//                        managerDelegate = _ICanHasEmptyLocationDelegate()
+//                        manager.delegate = managerDelegate
+//                    }else {
+//                        managerDelegate = manager.delegate!
+//                    }
                     
-                    if !(self.locationExchangeDone[managerClassName] ?? false) {
-                        self.locationExchangeDone[managerClassName] = true
+//                    retainedManagerDelegate = managerDelegate
+                    
+//                    let _ = retainedManagerDelegate
+                    
+//                    let managerDelegateClass:AnyClass = (managerDelegate as AnyObject).dynamicType
+                    
+//                    let managerDelegateClassName = "\(managerDelegateClass)"
+                    
+//                    if !(self.locationExchangeDone[managerDelegateClassName] ?? false) {
+//                        self.locationExchangeDone[managerDelegateClassName] = true
+//                        
+//                        let pair = ("locationManager:didChangeAuthorizationStatus:","_ICanHas_locationManager:didChangeAuthorizationStatus:")
+//                        
+//                        if String.fromCString(method_getTypeEncoding(class_getInstanceMethod(managerDelegateClass, Selector(stringLiteral: pair.0)))) == nil {
+//                            
+//                            let method = class_getInstanceMethod(NSObject.self, Selector(stringLiteral:"_ICanHas_empty_" + pair.0))
+//                            
+//                            class_addMethod(managerDelegateClass, Selector(stringLiteral:pair.0), method_getImplementation(method), method_getTypeEncoding(method))
+//                            
+//                        }
+//                        
+//                        
+//                        method_exchangeImplementations(
+//                            class_getInstanceMethod(managerDelegateClass,Selector(stringLiteral: pair.0)),
+//                            class_getInstanceMethod(managerDelegateClass,Selector(stringLiteral: pair.1))
+//                        )
+//                        
+//                    }
+                    
+//                    var listener:_ICanHasListener! = _ICanHasListener()
+//                    var removeListener:(()->Void)! = nil
+                    
+                    var foregroundObject:NSObjectProtocol!
+                    var backgroundObject:NSObjectProtocol!
+                    
+                    var completed = false
+                    var hasTimedOut = false
+                    var canTimeOut = true
+                    
+                    let complete:(Bool)->Void = {
+                        worked in
+//                        retainedObjects = nil
+//                        listener = nil
                         
-                        let pair = ("locationManager:didChangeAuthorizationStatus:","_ICanHas_locationManager:didChangeAuthorizationStatus:")
-                        
-                        if String.fromCString(method_getTypeEncoding(class_getInstanceMethod(managerClass, Selector(stringLiteral: pair.0)))) == nil {
+                        if !completed {
+                            completed = true
                             
-                            let method = class_getInstanceMethod(NSObject.self, Selector(stringLiteral:"_ICanHas_empty_" + pair.0))
+                            manager = nil
                             
-                            class_addMethod(managerClass, Selector(stringLiteral:pair.0), method_getImplementation(method), method_getTypeEncoding(method))
+                            if let object = foregroundObject {
+                                NSNotificationCenter.defaultCenter().removeObserver(object)
+                            }
+                            
+                            if let object = backgroundObject {
+                                NSNotificationCenter.defaultCenter().removeObserver(object)
+                            }
+                            
+                            foregroundObject = nil
+                            backgroundObject = nil
+                            
+                            let status = CLLocationManager.authorizationStatus()
+                            
+                            if status == .AuthorizedAlways || (!background && status == .AuthorizedWhenInUse) {
+                                done(worked && true,status)
+                            }else {
+                                done(false,status)
+                            }
                             
                         }
                         
-                        
-                        method_exchangeImplementations(
-                            class_getInstanceMethod(managerClass,Selector(stringLiteral: pair.0)),
-                            class_getInstanceMethod(managerClass,Selector(stringLiteral: pair.1))
-                        )
                         
                     }
                     
-                    
-                    
-                    manager.requestWhenInUseAuthorization()
-                    
-                    var listener:_ICanHasListener! = _ICanHasListener()
-                    var removeListener:(()->Void)! = nil
-                    
-                    if let delegate = manager.delegate {
-                        var lastDelegate:NSObject = delegate as! NSObject
-                        var retainedObjects:[AnyObject]! = []
-                        retainedObjects.append(lastDelegate)
-                        while lastDelegate._ich_listener != nil {
-                            lastDelegate = lastDelegate._ich_listener
-                            retainedObjects.append(lastDelegate)
-                        }
-                        lastDelegate._ich_listener = listener
-                        removeListener = {
-                            lastDelegate._ich_listener = nil
-                            retainedObjects = nil
-                            listener = nil
-                            manager = nil
-                            removeListener = nil
-                        }
-                    }else {
-                        manager.delegate = listener
-                        removeListener = {
-                            manager.delegate = nil
-                            listener = nil
-                            manager = nil
-                            removeListener = nil
-                        }
-                    }
-                    
-                    
-                    listener.changedLocationPermissions = {
-                        (status:CLAuthorizationStatus) -> Void in
-                        
-                        ICanHas.onMain {
-                            if status != .NotDetermined && status != currentStatus {
-                                
-                                removeListener()
-                                
-                                if status == .AuthorizedAlways || status == .AuthorizedWhenInUse {
-                                    done(true,status)
-                                }else {
-                                    done(false,status)
-                                }
+                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW,Int64(1 * Double(NSEC_PER_SEC))),dispatch_get_main_queue(), {
+                        if canTimeOut {
+                            hasTimedOut = true
+                            if let object = backgroundObject {
+                                NSNotificationCenter.defaultCenter().removeObserver(object)
+                                backgroundObject = nil
+                                complete(false)
                             }
                         }
+                    })
+                    
+                    backgroundObject = NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationWillResignActiveNotification, object: nil, queue: nil) {
+                        _ in
+                        
+                        canTimeOut = false
+                        
                     }
+                    
+                    foregroundObject = NSNotificationCenter.defaultCenter().addObserverForName(UIApplicationDidBecomeActiveNotification, object: nil, queue: nil) {
+                        _ in
+                        
+                        if !hasTimedOut {
+                            complete(true)
+                        }
+                        
+                    }
+                    
+//                    if let delegate = manager.delegate {
+//                        var lastDelegate:NSObject = delegate as! NSObject
+//                        var retainedObjects:[AnyObject]! = []
+//                        retainedObjects.append(lastDelegate)
+//                        while lastDelegate._ich_listener != nil {
+//                            lastDelegate = lastDelegate._ich_listener
+//                            retainedObjects.append(lastDelegate)
+//                        }
+//                        lastDelegate._ich_listener = listener
+//                        
+//                    }else {
+//                        manager.delegate = listener
+//                        removeListener = {
+//                            manager.delegate = nil
+//                            listener = nil
+//                            manager = nil
+//                            removeListener = nil
+//                        }
+//                    }
+                    
+                    
+//                    listener.changedLocationPermissions = {
+//                        (status:CLAuthorizationStatus) -> Void in
+//                        
+//                        ICanHas.onMain {
+//                            if status != .NotDetermined && status != currentStatus {
+//                                
+//                                removeListener()
+//                                
+//                                
+//                            }
+//                        }
+//                    }
                     
                     if background {
                         assert(
@@ -492,6 +567,8 @@ public class ICanHas {
                         
                         manager.requestAlwaysAuthorization()
                     }else {
+                        
+                        print("RIGHT NOW REQUESTING!!!!!")
                         
                         assert(
                             NSBundle.mainBundle().objectForInfoDictionaryKey(
@@ -515,30 +592,32 @@ private var _ICanHasListenerHandler: UInt8 = 0
 
 extension NSObject {
     
-    private var _ich_listener:_ICanHasListener! {
-        set {
-            
-            objc_setAssociatedObject(self, &_ICanHasListenerHandler, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
-        }
-        get {
-            return objc_getAssociatedObject(self, &_ICanHasListenerHandler) as? _ICanHasListener
-        }
-    }
+//    private var _ich_listener:_ICanHasListener! {
+//        set {
+//            
+//            objc_setAssociatedObject(self, &_ICanHasListenerHandler, newValue, objc_AssociationPolicy.OBJC_ASSOCIATION_RETAIN_NONATOMIC)
+//        }
+//        get {
+//            return objc_getAssociatedObject(self, &_ICanHasListenerHandler) as? _ICanHasListener
+//        }
+//    }
     
 //    //Empty implementations:
     //Added implementations
-    public func _ICanHas_empty_locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) { }
+//    public func _ICanHas_empty_locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) { }
     
 //    public func _ICanHas_empty_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) { }
 //    
 //    public func _ICanHas_empty_application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) { }
     
     //Added implementations
-    public func _ICanHas_locationManager(manager: CLLocationManager!, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-        self._ich_listener?.locationManager(manager, didChangeAuthorizationStatus: status)
-        
-        self._ICanHas_locationManager(manager, didChangeAuthorizationStatus: status)
-    }
+//    public func _ICanHas_locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+//        self._ich_listener!.locationManager(manager, didChangeAuthorizationStatus: status)
+//        
+//        print("DID CHANGE BEING CALLED!!!!")
+//        
+//        self._ICanHas_locationManager(manager, didChangeAuthorizationStatus: status)
+//    }
     
 //    public func _ICanHas_application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
 //        self._ich_listener?.application(application, didRegisterForRemoteNotificationsWithDeviceToken: deviceToken)
@@ -554,19 +633,27 @@ extension NSObject {
     
 }
 
-public class _ICanHasListener:NSObject,CLLocationManagerDelegate,UIApplicationDelegate {
-    var changedLocationPermissions:((CLAuthorizationStatus)->Void)!
-    var registeredForPush:((NSData)->Void)!
-    var failedToRegisterForPush:((NSError)->Void)!
-    
-    public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
-        self.changedLocationPermissions?(status)
-    }
-    
-//    public func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
-//        self.registeredForPush?(deviceToken)
+//public class _ICanHasEmptyLocationDelegate:NSObject, CLLocationManagerDelegate {
+//    public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+//        
+//        print("CHANGED AUTH STATUS")
+//        
 //    }
-//    public func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
-//        self.failedToRegisterForPush?(error)
+//}
+
+//public class _ICanHasListener:NSObject,CLLocationManagerDelegate,UIApplicationDelegate {
+//    var changedLocationPermissions:((CLAuthorizationStatus)->Void)!
+//    var registeredForPush:((NSData)->Void)!
+//    var failedToRegisterForPush:((NSError)->Void)!
+//    
+//    public func locationManager(manager: CLLocationManager, didChangeAuthorizationStatus status: CLAuthorizationStatus) {
+//        self.changedLocationPermissions?(status)
 //    }
-}
+//    
+////    public func application(application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: NSData) {
+////        self.registeredForPush?(deviceToken)
+////    }
+////    public func application(application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: NSError) {
+////        self.failedToRegisterForPush?(error)
+////    }
+//}
