@@ -165,9 +165,11 @@
 					911C05BB1B470D7200BFDCE6 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = 782QU9NW59;
+						LastSwiftMigration = 0900;
 					};
 					911C05D01B470D7200BFDCE6 = {
 						CreatedOnToolsVersion = 6.3.1;
+						LastSwiftMigration = 0900;
 						TestTargetID = 911C05BB1B470D7200BFDCE6;
 					};
 				};
@@ -357,6 +359,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "3f6f85f5-f416-42cd-b1d8-5cd22887caf9";
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Debug;
 		};
@@ -370,6 +374,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "3f6f85f5-f416-42cd-b1d8-5cd22887caf9";
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 			};
 			name = Release;
 		};
@@ -389,6 +395,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "1e484442-6fd8-4d2f-873f-821eea50105c";
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ICanHasSample.app/ICanHasSample";
 			};
 			name = Debug;
@@ -405,6 +413,8 @@
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "1e484442-6fd8-4d2f-873f-821eea50105c";
+				SWIFT_SWIFT3_OBJC_INFERENCE = On;
+				SWIFT_VERSION = 4.0;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ICanHasSample.app/ICanHasSample";
 			};
 			name = Release;

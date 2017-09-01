@@ -8,71 +8,52 @@
 
 import UIKit
 
+private extension Bool {
+    var text: String { return self ? "YES" : "NO" }
+}
+
 class ViewController: UIViewController {
-    
     @IBOutlet weak var pushLabel: UILabel!
-    @IBAction func tappedPush(sender: AnyObject) {
-        ICanHas.Push { (authorized) -> Void in
-            
-            self.pushLabel.text = authorized ? "YES" : "NO"
-            
+    @IBAction func tappedPush(_ sender: AnyObject) {
+        ICanHas.push { authorized in
+            self.pushLabel.text = authorized.text
         }
     }
+    
     @IBOutlet weak var locationLabel: UILabel!
-    @IBAction func tappedLocation(sender: AnyObject) {
-        
-        ICanHas.Location { (authorized, status) -> Void in
-            
-            self.locationLabel.text = authorized ? "YES" : "NO"
-            
+    @IBAction func tappedLocation(_ sender: AnyObject) {
+        ICanHas.location { authorized, status in
+            self.locationLabel.text = authorized.text
         }
     }
+    
     @IBOutlet weak var cameraLabel: UILabel!
-    @IBAction func tappedCamera(sender: AnyObject) {
-        
-        ICanHas.Capture { (authorized, status) -> Void in
-            
-            self.cameraLabel.text = authorized ? "YES" : "NO"
-            
+    @IBAction func tappedCamera(_ sender: AnyObject) {
+        ICanHas.capture { authorized, status in
+            self.cameraLabel.text = authorized.text
         }
     }
+    
     @IBOutlet weak var photosLabel: UILabel!
-    @IBAction func tappedPhotos(sender: AnyObject) {
-        
-        ICanHas.Photos { (authorized, status) -> Void in
-            
-            self.photosLabel.text = authorized ? "YES" : "NO"
-            
+    @IBAction func tappedPhotos(_ sender: AnyObject) {
+        ICanHas.photos { authorized, status in
+            self.photosLabel.text = authorized.text
         }
     }
+    
     @IBOutlet weak var contactsLabel: UILabel!
-    @IBAction func tappedContacs(sender: AnyObject) {
-        
-        ICanHas.Contacts { (authorized, status,error) -> Void in
-            
-            self.contactsLabel.text = authorized ? "YES" : "NO"
-            
+    @IBAction func tappedContacs(_ sender: AnyObject) {
+        ICanHas.contacts { authorized, status, error in
+            self.contactsLabel.text = authorized.text
         }
     }
+    
     @IBOutlet weak var calendarLabel: UILabel!
-    @IBAction func tappedCalendar(sender: AnyObject) {
-        
-        ICanHas.Calendar { (authorized,error) -> Void in
-            
-            self.calendarLabel.text = authorized ? "YES" : "NO"
+    @IBAction func tappedCalendar(_ sender: AnyObject) {
+        ICanHas.calendar { authorized, status, error in
+            self.calendarLabel.text = authorized.text
             
         }
     }
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
-    }
-    
-    override func didReceiveMemoryWarning() {
-        super.didReceiveMemoryWarning()
-        // Dispose of any resources that can be recreated.
-    }
-    
-    
 }
 
