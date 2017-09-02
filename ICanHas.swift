@@ -1,15 +1,9 @@
 import Foundation
-
 import UIKit
-
 import CoreLocation
-
 import AVFoundation
-
 import Photos
-
 import AddressBookUI
-
 import EventKit
 
 public typealias AuthClosure = (_ authorized: Bool) -> Void
@@ -169,7 +163,7 @@ open class ICanHas {
         return captureAuthorizationStatus(for: type) == .authorized
     }
     
-    open class func capture(_ type: AVMediaType = .video, closure: @escaping AuthStatusClosure<AVAuthorizationStatus>) {
+    open class func capture(type: AVMediaType = .video, closure: @escaping AuthStatusClosure<AVAuthorizationStatus>) {
         onMain {
             hasCaptureClosures[type, default: []].append(closure)
             guard !isHasingCapture[type, default: false] else { return }
@@ -193,7 +187,7 @@ open class ICanHas {
         return UIApplication.shared.isRegisteredForRemoteNotifications
     }
     
-    open class func push(_ types: UIUserNotificationType = [.alert, .badge, .sound], closure: @escaping AuthClosure) {
+    open class func push(types: UIUserNotificationType = [.alert, .badge, .sound], closure: @escaping AuthClosure) {
         onMain {
             hasPushClosures.append(closure)
             guard !isHasingPush else { return }
@@ -243,7 +237,7 @@ open class ICanHas {
         return status == .authorizedAlways || (!background && status == .authorizedWhenInUse)
     }
     
-    open class func location(_ background: Bool = false, manager defaultManager: CLLocationManager? = nil, closure: @escaping AuthStatusClosure<CLAuthorizationStatus>) {
+    open class func location(background: Bool = false, manager defaultManager: CLLocationManager? = nil, closure: @escaping AuthStatusClosure<CLAuthorizationStatus>) {
         onMain {
             hasLocationClosures.append(closure)
             guard !isHasingLocation else { return }
