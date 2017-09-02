@@ -28,7 +28,7 @@ ICanHas.push { authorized in
     print(authorized ? "You're authorized to send push notes!" : "You're not authorized to send push notes!")
 }
 ```
-💡 This function has one optional parameter `types: UIUserNotificationType` which specifies the user notification types for which you would like the app to be registered. The default value includes all types `.alert | .badge | .sound`.
+💡 This function has one optional parameter `types: UIUserNotificationType` which specifies the user notification types for which you would like the app to be registered. The default value includes all types `[.alert, .badge, .sound]`.
 
 💡 For this authorization to work, you will need to run your app on a device (the simulator cannot register for push notifications) and make sure you have all the necessary provisioning and certificates. [More info here](http://help.apple.com/xcode/mac/current/#/dev11b059073).
 
