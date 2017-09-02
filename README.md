@@ -20,7 +20,7 @@ ICanHas.location { authorized, status in
 let myManager = CLLocationManager()
 ICanHas.location(background: false, manager: myManager) { ... }
 ```
-💡 Also make sure to add the `NSLocationWhenInUseUsageDescription` or `NSLocationAlwaysUsageDescription` key to your `Info.plist` file. [More info here]https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html).
+💡 Also make sure to add the `NSLocationWhenInUseUsageDescription` or `NSLocationAlwaysUsageDescription` key to your `Info.plist` file. [More info here](https://developer.apple.com/library/content/documentation/General/Reference/InfoPlistKeyReference/Articles/CocoaKeys.html).
 
 ### Push Notifications:
 ```swift
