@@ -11,31 +11,15 @@ public typealias AuthErrorClosure = (_ authorized: Bool, _ error: Error?) -> Voi
 public typealias AuthStatusClosure<Status> = (_ authorized: Bool, _ status: Status) -> Void
 public typealias AuthStatusErrorClosure<Status> = (_ authorized: Bool, _ status: Status, _ error: Error?) -> Void
 
-private func complete(_ closures: inout [AuthClosure], _ flag: inout Bool, _ authorized: Bool) {
-    let array = closures
-    closures = []
-    for closure in array { closure(authorized) }
-    flag = true
-}
+private typealias _AuthClosure = (Bool) -> Void
+private typealias _AuthErrorClosure = ((Bool, Error?)) -> Void
+private typealias _AuthStatusClosure<Status> = ((Bool, Status)) -> Void
+private typealias _AuthStatusErrorClosure<Status> = ((Bool, Status, Error?)) -> Void
 
-private func complete(_ closures: inout [AuthErrorClosure], _ flag: inout Bool, _ authorized: Bool, error: Error?) {
+private func complete<P>(_ closures: inout [(P) -> Void], _ flag: inout Bool, _ params: P) {
     let array = closures
     closures = []
-    for closure in array { closure(authorized, error) }
-    flag = true
-}
-
-private func complete<Status>(_ closures: inout [AuthStatusClosure<Status>], _ flag: inout Bool, _ authorized: Bool, _ status: Status) {
-    let array = closures
-    closures = []
-    for closure in array { closure(authorized, status) }
-    flag = true
-}
-
-private func complete<Status>(_ closures: inout [AuthStatusErrorClosure<Status>], _ flag: inout Bool, _ authorized: Bool, _ status: Status, _ error: Error?) {
-    let array = closures
-    closures = []
-    for closure in array { closure(authorized, status, error) }
+    for closure in array { closure(params) }
     flag = true
 }
 
@@ -62,12 +46,12 @@ open class ICanHas {
     static private var isHasingPhotos = false
     static private var isHasingContacts = false
     static private var isHasingCalendar: [EKEntityType: Bool] = [:]
-    static private var hasPushClosures: [AuthClosure] = []
-    static private var hasLocationClosures: [AuthStatusClosure<CLAuthorizationStatus>] = []
-    static private var hasCaptureClosures: [AVMediaType: [AuthStatusClosure<AVAuthorizationStatus>]] = [:]
-    static private var hasPhotosClosures: [AuthStatusClosure<PHAuthorizationStatus>] = []
-    static private var hasContactsClosures: [AuthStatusErrorClosure<ABAuthorizationStatus>] = []
-    static private var hasCalendarClosures: [EKEntityType: [AuthStatusErrorClosure<EKAuthorizationStatus>]] = [:]
+    static private var hasPushClosures: [_AuthClosure] = []
+    static private var hasLocationClosures: [_AuthStatusClosure<CLAuthorizationStatus>] = []
+    static private var hasCaptureClosures: [AVMediaType: [_AuthStatusClosure<AVAuthorizationStatus>]] = [:]
+    static private var hasPhotosClosures: [_AuthStatusClosure<PHAuthorizationStatus>] = []
+    static private var hasContactsClosures: [_AuthStatusErrorClosure<ABAuthorizationStatus>] = []
+    static private var hasCalendarClosures: [EKEntityType: [_AuthStatusErrorClosure<EKAuthorizationStatus>]] = [:]
     
     open class func calendarAuthorizationStatus(for type: EKEntityType = EKEntityType.event) -> EKAuthorizationStatus {
         return EKEventStore.authorizationStatus(for: type)
@@ -83,7 +67,7 @@ open class ICanHas {
             guard !isHasingCalendar[type, default: false] else { return }
             isHasingCalendar[type] = true
             let done: AuthStatusErrorClosure<EKAuthorizationStatus> = { authorized, status, error in
-                complete(&hasCalendarClosures[type, default: []], &isHasingCalendar[type, default: false], authorized, status, error)
+                complete(&hasCalendarClosures[type, default: []], &isHasingCalendar[type, default: false], (authorized, status, error))
             }
             let status = calendarAuthorizationStatus(for: type)
             switch status {
@@ -111,7 +95,7 @@ open class ICanHas {
             guard !isHasingContacts else { return }
             isHasingContacts = true
             let done: AuthStatusErrorClosure<ABAuthorizationStatus> = { authorized, status, error in
-                complete(&hasContactsClosures, &isHasingContacts, authorized, status, error)
+                complete(&hasContactsClosures, &isHasingContacts, (authorized, status, error))
             }
             let status = contactsAuthorizationStatus()
             switch status {
@@ -140,7 +124,7 @@ open class ICanHas {
             guard !isHasingPhotos else { return }
             isHasingPhotos = true
             let done: AuthStatusClosure<PHAuthorizationStatus> = { authorized, status in
-                complete(&hasPhotosClosures, &isHasingPhotos, authorized, status)
+                complete(&hasPhotosClosures, &isHasingPhotos, (authorized, status))
             }
             let status = photosAuthorizationStatus()
             switch status {
@@ -169,7 +153,7 @@ open class ICanHas {
             guard !isHasingCapture[type, default: false] else { return }
             isHasingCapture[type] = true
             let done: AuthStatusClosure<AVAuthorizationStatus> = { authorized, status in
-                complete(&hasCaptureClosures[type, default: []], &isHasingCapture[type, default:false], authorized, status)
+                complete(&hasCaptureClosures[type, default: []], &isHasingCapture[type, default:false], (authorized, status))
             }
             let status = captureAuthorizationStatus(for: type)
             switch status {
@@ -243,7 +227,7 @@ open class ICanHas {
             guard !isHasingLocation else { return }
             ICanHas.isHasingLocation = true
             let done: AuthStatusClosure<CLAuthorizationStatus> = { authorized, status in
-                complete(&hasLocationClosures, &isHasingLocation, authorized, status)
+                complete(&hasLocationClosures, &isHasingLocation, (authorized, status))
             }
             let status = locationAuthorizationStatus()
             switch status {
