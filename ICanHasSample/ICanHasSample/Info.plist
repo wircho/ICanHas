@@ -2,20 +2,12 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Needs photos</string>
-	<key>NSCameraUsageDescription</key>
-	<string>Needs camera</string>
-	<key>NSCalendarsUsageDescription</key>
-	<string>Needs calendar</string>
-	<key>NSContactsUsageDescription</key>
-	<string>Needs contacts</string>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
 	<key>CFBundleExecutable</key>
 	<string>$(EXECUTABLE_NAME)</string>
 	<key>CFBundleIdentifier</key>
-	<string>com.relevantu.$(PRODUCT_NAME:rfc1034identifier)</string>
+	<string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
 	<key>CFBundleInfoDictionaryVersion</key>
 	<string>6.0</string>
 	<key>CFBundleName</key>
@@ -30,10 +22,18 @@
 	<string>1</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<key>NSCalendarsUsageDescription</key>
+	<string>Needs calendar</string>
+	<key>NSCameraUsageDescription</key>
+	<string>Needs camera</string>
+	<key>NSContactsUsageDescription</key>
+	<string>Needs contacts</string>
 	<key>NSLocationAlwaysUsageDescription</key>
 	<string>Needs always</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Needs when in use</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Needs photos</string>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
