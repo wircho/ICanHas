@@ -165,11 +165,11 @@
 					911C05BB1B470D7200BFDCE6 = {
 						CreatedOnToolsVersion = 6.3.1;
 						DevelopmentTeam = 782QU9NW59;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1000;
 					};
 					911C05D01B470D7200BFDCE6 = {
 						CreatedOnToolsVersion = 6.3.1;
-						LastSwiftMigration = 0900;
+						LastSwiftMigration = 1000;
 						TestTargetID = 911C05BB1B470D7200BFDCE6;
 					};
 				};
@@ -382,8 +382,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.relevantu.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "3f6f85f5-f416-42cd-b1d8-5cd22887caf9";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Debug;
 		};
@@ -398,8 +397,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.relevantu.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "3f6f85f5-f416-42cd-b1d8-5cd22887caf9";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 			};
 			name = Release;
 		};
@@ -420,8 +418,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.relevant.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "1e484442-6fd8-4d2f-873f-821eea50105c";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ICanHasSample.app/ICanHasSample";
 			};
 			name = Debug;
@@ -439,8 +436,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = "com.relevant.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE = "1e484442-6fd8-4d2f-873f-821eea50105c";
-				SWIFT_SWIFT3_OBJC_INFERENCE = On;
-				SWIFT_VERSION = 4.0;
+				SWIFT_VERSION = 4.2;
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/ICanHasSample.app/ICanHasSample";
 			};
 			name = Release;
