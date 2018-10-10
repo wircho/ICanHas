@@ -192,12 +192,12 @@ open class ICanHas {
             var hasGoneToBackground = false
             var waitingForForeground = false
             
-            observeOnce(notificationName: .UIApplicationWillResignActive) { _ in
+            observeOnce(notificationName: UIApplication.willResignActiveNotification) { _ in
                 hasGoneToBackground = true
                 waitingForForeground = !hasTimedOut || waitingForForeground
             }
             
-            observeOnce(notificationName: .UIApplicationDidBecomeActive) { _ in
+            observeOnce(notificationName: UIApplication.didBecomeActiveNotification) { _ in
                 guard waitingForForeground else { return }
                 done(application.isRegisteredForRemoteNotifications)
             }
@@ -257,9 +257,9 @@ open class ICanHas {
                     complete(false)
                 }
                 
-                observeOnce(notificationName: .UIApplicationWillResignActive) { _ in canTimeOut = false }
+                observeOnce(notificationName: UIApplication.willResignActiveNotification) { _ in canTimeOut = false }
                 
-                observeOnce(notificationName: .UIApplicationDidBecomeActive) { _ in
+                observeOnce(notificationName: UIApplication.didBecomeActiveNotification) { _ in
                     guard !hasTimedOut else { return }
                     complete(true)
                 }
